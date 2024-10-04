@@ -1,23 +1,14 @@
 import wikipedia
-import sys
 import queue
-import os
-import re
 
 from paraphraser import paraphrase
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 folder_path = "pdfs/"
 
-def main():
-    if not os.path.exists(folder_path):
-        os.makedirs(folder_path)
-        print(f"Directory '{folder_path}' created.")
-    else:
-        print(f"Directory '{folder_path}' already exists.")
+def pdfGenerator(num_pages):   
     
-    
-    for i in range(0,1):
+    for i in range(0,num_pages):
         try:
             page = wikipedia.page(wikipedia.random())
             print(page.title)
