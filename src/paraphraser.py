@@ -16,7 +16,7 @@ prompt = "Paraphrase the following paragraph. Give only one response"
 
 def paraphrase(text):
     response = chat.send_message(prompt+ ": "+ text)
-    print(response.text)
+    return response.text
 
 
 

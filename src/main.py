@@ -2,14 +2,14 @@ import wikipedia
 import sys
 import queue
 import os
+import re
 
-
-from src.paraphraser import paraphrase
+from paraphraser import paraphrase
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 folder_path = "pdfs/"
 
-if __name__ == "__main__":
+def main():
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
         print(f"Directory '{folder_path}' created.")
@@ -28,8 +28,6 @@ if __name__ == "__main__":
         content = page.content.strip()
         content = page.content.split('\n')
 
-        print(page.content)
-
         for i in range(len(content)):
             if "==" in content[i]:
                 pdfContent.put((content[i], 1))
@@ -44,11 +42,13 @@ if __name__ == "__main__":
 
         while not pdfContent.empty():
             result = pdfContent.get()
+            print(result[0])
 
             if result[1] == 1:
                 c.setFont("Helvetica-Bold", 14) 
-            else:
+            elif result[1] == 2 and result[0] != '':
                 c.setFont("Helvetica", 12)  
+                result = (paraphrase(result[0]), result[1])
             
             text = result[0]
             words = text.split(' ')
@@ -81,10 +81,5 @@ if __name__ == "__main__":
 
 
     c.save()
-
-            
-
-
-
-
         
+main()
