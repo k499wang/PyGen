@@ -32,9 +32,9 @@ To run this project, you need to configure your API key:
 
 To use PyGen, run the following command:
 ```bash
-python main.py -paages num
+python main.py -pages num
 ```
-Replace num with how many pdfs you may generate.
+Replace num with how many pdfs you want to generate.
 
 ## Contact
 
