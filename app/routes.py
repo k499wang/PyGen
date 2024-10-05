@@ -1,13 +1,11 @@
-from flask import send_file, request, render_template
+from app import app
+from flask import Blueprint, send_file, request, render_template
 from backend.pdfHandle import pdfHandler
-
 import os
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+main = Blueprint('main', __name__)
 
-@app.route('/generate-pdf')
-def generate_pdf_route():
-    pdfHandler
-    return send_file(pdf_path, as_attachment=True)
+@app.route('/api/generatepdf', methods = ['GET'])
+def generatepdf():
+    path = pdfHandler()
+    return send_file(path, as_attachment=True)

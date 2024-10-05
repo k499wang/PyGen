@@ -1,12 +1,14 @@
 import wikipedia
 import queue
+import sys
+import os
 
-from paraphraser import paraphrase
+from backend.tools.paraphraser import paraphrase
+
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
-folder_path = "pdfs/"
 
-def pdfGenerator(num_pages):   
+def pdfHandler(num_pages):   
     
     for i in range(0,num_pages):
         try:
@@ -14,6 +16,7 @@ def pdfGenerator(num_pages):
             print(page.title)
         except wikipedia.exceptions.PageError as e:
             print(e)
+            continue
 
         pdfContent = queue.Queue()
         content = page.content.strip()
@@ -72,5 +75,6 @@ def pdfGenerator(num_pages):
 
 
     c.save()
+
+    return folder_path + page.title + ".pdf"
         
-main()
