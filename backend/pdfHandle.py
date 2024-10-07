@@ -5,76 +5,88 @@ import os
 
 from backend.tools.paraphraser import paraphrase
 
+from wikipedia.exceptions import DisambiguationError, PageError
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+pdfs_folder = os.path.join(base_dir, 'pdfs')  
+
 def pdfHandler(num_pages):   
+    paths = []
     
-    for i in range(0,num_pages):
-        try:
-            page = wikipedia.page(wikipedia.random())
-            print(page.title)
-        except wikipedia.exceptions.PageError as e:
-            print(e)
-            continue
+    for i in range(0, num_pages):
+        page = None
+        while not page:
+            try:
+                page = wikipedia.page(wikipedia.random())
+                print(f"Selected page: {page.title}")
+            except DisambiguationError as e:
+                print(f"DisambiguationError: {e} - Retrying with a different page.")
+                page = None  # Retry on disambiguation error
+        
+        if page != None:
+            pdfContent = queue.Queue()
+            content = page.content.strip()
+            content = page.content.split('\n')
 
-        pdfContent = queue.Queue()
-        content = page.content.strip()
-        content = page.content.split('\n')
+            temp = ""
+            for i in range(len(content)):
+                if "==" in content[i]:
+                    if temp != "":
+                        pdfContent.put((temp, 2))
+                    pdfContent.put((content[i], 1))
+                else:
+                    temp = temp + content[i]
 
-        for i in range(len(content)):
-            if "==" in content[i]:
-                pdfContent.put((content[i], 1))
-            else:
-                pdfContent.put((content[i], 2))
+            yCoordinate = 750
+            c = canvas.Canvas(f"pdfs/{page.title}.pdf", pagesize=letter)
 
-        yCoordinate = 750
-        c = canvas.Canvas(folder_path + page.title + ".pdf", pagesize=letter)
+            max_y_coordinate = 750  
+            min_y_coordinate = 50  
 
-        max_y_coordinate = 750  
-        min_y_coordinate = 50  
-
-        while not pdfContent.empty():
-            result = pdfContent.get()
-            print(result[0])
-
-            if result[1] == 1:
-                c.setFont("Helvetica-Bold", 14) 
-            elif result[1] == 2 and result[0] != '':
-                c.setFont("Helvetica", 12)  
-                result = (paraphrase(result[0]), result[1])
             
-            text = result[0]
-            words = text.split(' ')
-            current_line = ''
-            
-            for word in words:
-                if len(current_line) + len(word) + 1 > 80:
+            while not pdfContent.empty():
+                result = pdfContent.get()
+                
+                if result[1] == 1:
+                    c.setFont("Helvetica-Bold", 14) 
+                elif result[1] == 2 and result[0] != '':
+                    c.setFont("Helvetica", 12)  
+                    result = (paraphrase(result[0]), result[1])
+                
+                text = result[0]
+                words = text.split(' ')
+                current_line = ''
+                
+                for word in words:
+                    if len(current_line) + len(word) + 1 > 80:
+                        if yCoordinate < min_y_coordinate:
+                            c.showPage()
+                            c.setFont("Helvetica-Bold", 14) if result[1] == 1 else c.setFont("Helvetica", 12)
+                            yCoordinate = max_y_coordinate
+                        
+                        c.drawString(50, yCoordinate, current_line)
+                        current_line = word
+                        yCoordinate -= 20
+                    else:
+                        if current_line:
+                            current_line += ' '
+                        current_line += word
+                
+                if current_line:
                     if yCoordinate < min_y_coordinate:
                         c.showPage()
                         c.setFont("Helvetica-Bold", 14) if result[1] == 1 else c.setFont("Helvetica", 12)
                         yCoordinate = max_y_coordinate
-                    
+
                     c.drawString(50, yCoordinate, current_line)
-                    current_line = word
-                    yCoordinate -= 20
-                else:
-                    if current_line:
-                        current_line += ' '
-                    current_line += word
-            
-            if current_line:
-                if yCoordinate < min_y_coordinate:
-                    c.showPage()
-                    c.setFont("Helvetica-Bold", 14) if result[1] == 1 else c.setFont("Helvetica", 12)
-                    yCoordinate = max_y_coordinate
 
-                c.drawString(50, yCoordinate, current_line)
+                yCoordinate -= 20 
+        
+            c.save()
+            pdfPath = os.path.join(f"{pdfs_folder}", f"{page.title}.pdf")
+            paths.append(pdfPath)
 
-            yCoordinate -= 20 
-
-
-    c.save()
-
-    return folder_path + page.title + ".pdf"
+    return paths
         
