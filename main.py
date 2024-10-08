@@ -3,6 +3,7 @@ import queue
 import os
 import argparse
 import logging
+from tools.utils import check_folder
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("PyGen")
@@ -14,15 +15,11 @@ from reportlab.pdfgen import canvas
 
 folder_path = "pdfs/"
 
-def main(pages_count):
+def main(pages_count: int) -> None:
     
-    ## Create a directory to store the PDFs
     logger.info(f"Creating directory '{folder_path}' to store the PDFs.")
-    if not os.path.exists(folder_path):
-        os.makedirs(folder_path)
-        print(f"Directory '{folder_path}' created.")
-    else:
-        print(f"Directory '{folder_path}' already exists.")
+    
+    check_folder(folder_path)
 
     ## Fetch random Wikipedia pages and generate PDFs
     for i in range(pages_count):
