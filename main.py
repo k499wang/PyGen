@@ -5,7 +5,7 @@ import argparse
 import logging
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("PyGen")
 
 from tools.paraphraser import paraphrase
 from reportlab.lib.pagesizes import letter
