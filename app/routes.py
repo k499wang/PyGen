@@ -1,5 +1,5 @@
 from app import app
-from flask import Blueprint, send_file, request, jsonify, after_this_request
+from flask import Blueprint, send_file, request, jsonify, after_this_request, generate_template
 from backend.pdfHandle import pdfHandler
 import os
 import zipfile
@@ -14,7 +14,7 @@ main = Blueprint('main', __name__)
 
 @app.route('/')
 def home():
-    return "Hello, World!"
+    return generate_template('/templates/home.html')
 
 @app.route('/generatepdf', methods = ['GET'])
 def generatepdf():

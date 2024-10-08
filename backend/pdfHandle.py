@@ -2,6 +2,11 @@ import wikipedia
 import queue
 import sys
 import os
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 from backend.tools.paraphraser import paraphrase
 
@@ -20,9 +25,9 @@ def pdfHandler(num_pages):
         while not page:
             try:
                 page = wikipedia.page(wikipedia.random())
-                print(f"Selected page: {page.title}")
+                logger.info(f"Page: {page.title}")
             except DisambiguationError as e:
-                print(f"DisambiguationError: {e} - Retrying with a different page.")
+                logger.error(f"DisambiguationError: {e}")
                 page = None  # Retry on disambiguation error
         
         if page != None:
@@ -33,8 +38,7 @@ def pdfHandler(num_pages):
             temp = ""
             for i in range(len(content)):
                 if "==" in content[i]:
-                    if temp != "":
-                        pdfContent.put((temp, 2))
+                    pdfContent.put((temp, 2))
                     pdfContent.put((content[i], 1))
                 else:
                     temp = temp + content[i]
@@ -85,6 +89,7 @@ def pdfHandler(num_pages):
                 yCoordinate -= 20 
         
             c.save()
+            logger.info(f"PDF created for {page.title}")
             pdfPath = os.path.join(f"{pdfs_folder}", f"{page.title}.pdf")
             paths.append(pdfPath)
 
