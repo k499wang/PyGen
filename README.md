@@ -21,18 +21,20 @@ To install PyGen, follow these steps:
 
 ## Configuration
 
-To run this project, you need to configure your API key:
+To run this project, you need to configure your API key. You will need a Google account to get access to the Gemini API key.
 
 1. Create a `.env` file in the root directory of the project.
 2. Add the following line to the `.env` file:
 
 `API_KEY=your_api_key_here`
 
+Or you can set this as an environment variable.
+
 ## Usage
 
 To use PyGen, run the following command:
 ```bash
-python main.py -pages num
+python main.py num
 ```
 Replace num with how many pdfs you want to generate.
 

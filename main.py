@@ -1,6 +1,5 @@
 import wikipedia
 import queue
-import os
 import argparse
 import logging
 from tools.utils import check_folder
