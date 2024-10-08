@@ -9,18 +9,23 @@
             event.preventDefault();  // Prevent the default form submission
             const numPages = document.getElementById('numPages').value;  // Get the number of pages
 
-            fetch(`/generatepdf?number=${numPages}`)  // Fetch the PDFs
-                .then(response => response.blob())  // Get the response as a blob
-                .then(blob => {
-                    const url = URL.createObjectURL(blob);  // Create a URL for the blob
-                    const a = document.createElement('a');  // Create an anchor element
-                    a.href = url;  // Set the anchor element's href attribute
-                    a.download = "File.pdf" // Set the download attribute
-                    a.click();  // Click the anchor element
-                    a.remove();
-                    window.URL.revokeObjectURL(url);  // Clean up URL       
-                })
+            fetch(`/generatepdf?number=${numPages}`) 
+                .then(response => response.blob())
+                .then(blob => {                    
+                    const url = URL.createObjectURL(blob);  
+                    const a = document.createElement('a'); 
+                    a.href = url;  
 
+                    if(numPages == 1) {
+                        a.download = "File.pdf";
+                    } else {
+                        a.download = "File.zip";
+                    }
+                    a.click(); 
+                    a.remove();
+                    window.URL.revokeObjectURL(url);    
+                })
+                .then(() => alert('PDFs generated successfully, also saved in the PDFs Folder'))
                 .catch(error => alert(error));
         };
 

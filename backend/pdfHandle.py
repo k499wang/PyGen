@@ -17,8 +17,17 @@ from reportlab.pdfgen import canvas
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 pdfs_folder = os.path.join(base_dir, 'pdfs')  
 
-def pdfHandler(num_pages):   
+    
+def check_folder():
+    if not os.path.exists(pdfs_folder):
+        os.makedirs(pdfs_folder)
+
+def pdfHandler(num_pages: int) -> list: # Type safe   
     paths = []
+    check_folder()
+    
+    if not (0 <= num_pages <= 5):
+        raise ValueError("Value must be an integer between 0 and 5 (inclusive).")
     
     for i in range(0, num_pages):
         page = None
@@ -27,7 +36,7 @@ def pdfHandler(num_pages):
                 page = wikipedia.page(wikipedia.random())
                 logger.info(f"Page: {page.title}")
             except DisambiguationError as e:
-                logger.error(f"DisambiguationError: {e}")
+                logger.error(f"DisambiguationError: {e}, trying another page")
                 page = None  # Retry on disambiguation error
         
         if page != None:
