@@ -4,13 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home Page</title>
+    <script>
+        function getPDF(event){
+            event.preventDefault();  // Prevent the default form submission
+            const numPages = document.getElementById('numPages').value;  // Get the number of pages
+
+            fetch(`/generatepdf?number=${numPages}`)  // Fetch the PDFs
+                .then(response => response.blob())  // Get the response as a blob
+                .then(blob => {
+                    const url = URL.createObjectURL(blob);  // Create a URL for the blob
+                    const a = document.createElement('a');  // Create an anchor element
+                    a.href = url;  // Set the anchor element's href attribute
+                    a.download = "File.pdf" // Set the download attribute
+                    a.click();  // Click the anchor element
+                    a.remove();
+                    window.URL.revokeObjectURL(url);  // Clean up URL       
+                })
+
+                .catch(error => alert(error));
+        };
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('pdfForm');  // Get the form element
+            form.addEventListener('submit', getPDF);  // Add the submit event listener
+        });
+
+    </script>
 </head>
 
 <body>
     <h1>First app</h1>
-    <form action="/pdfgeneratev1" method="post">
-        <label for="userInput">Enter some text:</label>
-        <input type="text" id="userInput" name="userInput">
+    <form id = "pdfForm">
+        <label for="numPDFs">Enter the number of PDFs</label>
+        <input type="number" id="numPages" min="1" max="6" required>
         <button type="submit">Submit</button>
     </form>
 </body>

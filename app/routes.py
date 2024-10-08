@@ -1,5 +1,5 @@
 from app import app
-from flask import Blueprint, send_file, request, jsonify, after_this_request, generate_template
+from flask import Blueprint, send_file, request, jsonify, after_this_request, render_template
 from backend.pdfHandle import pdfHandler
 import os
 import zipfile
@@ -14,7 +14,21 @@ main = Blueprint('main', __name__)
 
 @app.route('/')
 def home():
-    return generate_template('/templates/home.html')
+    return render_template('home.html')
+
+@app.route('/deletefile', methods = ['GET'])
+def deletefile():
+    name = request.args.get('name')
+    try:
+        file_path = os.path.join(pdfs_folder, name)
+        if os.path.exists(file_path) and file_path.startswith(pdfs_folder):
+            os.remove(file_path)
+            return jsonify({'message': 'File deleted'}), 200
+        else:
+            return jsonify({'message': 'File does not exist or is outside the allowed directory'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 @app.route('/generatepdf', methods = ['GET'])
 def generatepdf():
@@ -26,11 +40,11 @@ def generatepdf():
 
         generated_pdfs = pdfHandler(num_pages)
         if len(generated_pdfs) == 1:
-            response = send_file(generated_pdfs[0], as_attachment=True)      
+            response = send_file(generated_pdfs[0], as_attachment=True, download_name=os.path.basename(generated_pdfs[0]))      
             return response
         elif len(generated_pdfs) > 1:
             zip_file = zip_pdfs(generated_pdfs)
-            response = send_file(zip_file, as_attachment=True)
+            response = send_file(zip_file, as_attachment=True,  download_name=os.path.basename(zip_file))
                         
             return response
         
