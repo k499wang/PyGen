@@ -2,6 +2,10 @@ import wikipedia
 import queue
 import os
 import argparse
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 from tools.paraphraser import paraphrase
 from reportlab.lib.pagesizes import letter
@@ -13,6 +17,7 @@ folder_path = "pdfs/"
 def main(pages_count):
     
     ## Create a directory to store the PDFs
+    logger.info(f"Creating directory '{folder_path}' to store the PDFs.")
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
         print(f"Directory '{folder_path}' created.")
@@ -23,19 +28,24 @@ def main(pages_count):
     for i in range(pages_count):
         try:
             page = wikipedia.page(wikipedia.random())
-            print(page.title)
+            logger.info(f"Selected page: {page.title}")
         except wikipedia.exceptions.PageError as e:
-            print(e)
+            logger.error(f"PageError: {e}")
+            logger.error("Retrying with a different page.")
             break
 
         pdfContent = queue.Queue()
         content = page.content.strip().split('\n')
 
+        content = ""
         for line in content:
             if "==" in line:
+                pdfContent.put((content, 2))
                 pdfContent.put((line, 1))
             elif line.strip() != '':
-                pdfContent.put((line, 2))
+                content += line
+        
+        pdfContent.put((content, 2))
 
         yCoordinate = 750
         c = canvas.Canvas(folder_path + page.title + ".pdf", pagesize=letter)
@@ -45,7 +55,6 @@ def main(pages_count):
 
         while not pdfContent.empty():
             result = pdfContent.get()
-            print(result[0])
 
             if result[1] == 1:
                 c.setFont("Helvetica-Bold", 14)
@@ -84,6 +93,7 @@ def main(pages_count):
             yCoordinate -= 20
 
         c.save()
+        logger.info(f"PDF generated for '{page.title}'.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate PDFs from random Wikipedia pages.")
