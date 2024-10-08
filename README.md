@@ -42,6 +42,18 @@ Or you can set this as an environment variable.
 
 ## API Endpoints
 
+### GET /api/download
+
+**Description**: This endpoint allows users to download a file (e.g., a PDF).
+
+**Response**: A file is sent to the client for download and saved on the server.
+
+#### Example Request
+
+Using `curl`:
+
+```bash
+curl -O http://localhost:5000/api/generatepdf?number=1
 
 
 
