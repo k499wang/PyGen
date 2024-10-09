@@ -12,7 +12,7 @@ chat = model.start_chat(history=[])
 
 prompt = "Paraphrase the following paragraph. Give only one response"
 
-def paraphrase(text):
+def paraphrase(text: str) -> str:
     response = chat.send_message(prompt+ ": "+ text)
     return response.text
 
