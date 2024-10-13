@@ -37,7 +37,7 @@ def pdfGenerate(num_pages: int) -> None: # Type safe
             temp = ""
             for i in range(len(content)):
                 if "==" in content[i]:
-                    pdfContent.put((temp, 2))
+                    pdfContent.put((temp, 2)) # Store the content in the queue
                     pdfContent.put((content[i], 1))
                 else:
                     temp = temp + content[i]
@@ -63,7 +63,7 @@ def pdfGenerate(num_pages: int) -> None: # Type safe
                 current_line = ''
                 
                 for word in words:
-                    if len(current_line) + len(word) + 1 > 80:
+                    if len(current_line) + len(word) + 1 > 80: # 80 characters per line, wrap text
                         if yCoordinate < min_y_coordinate:
                             c.showPage()
                             c.setFont("Helvetica-Bold", 14) if result[1] == 1 else c.setFont("Helvetica", 12)
@@ -78,7 +78,7 @@ def pdfGenerate(num_pages: int) -> None: # Type safe
                         current_line += word
                 
                 if current_line:
-                    if yCoordinate < min_y_coordinate:
+                    if yCoordinate < min_y_coordinate: # If the text goes beyond the page, create a new page
                         c.showPage()
                         c.setFont("Helvetica-Bold", 14) if result[1] == 1 else c.setFont("Helvetica", 12)
                         yCoordinate = max_y_coordinate

@@ -33,6 +33,7 @@ Or you can set this as an environment variable.
 ## Usage
 
 To use PyGen, run the following command:
+
 ```bash
 python main.py num
 ```
