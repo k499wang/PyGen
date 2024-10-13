@@ -54,8 +54,7 @@ Using `curl`:
 
 ```bash
 curl -O http://localhost:5000/api/generatepdf?number=1
-
-
+```
 
 ## Contact
 
