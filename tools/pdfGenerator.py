@@ -21,6 +21,7 @@ def pdfGenerate(num_pages: int) -> None: # Type safe
 
     for i in range(0, num_pages):
         page = None
+        
         while not page:
             try:
                 page = wikipedia.page(wikipedia.random())
@@ -30,13 +31,14 @@ def pdfGenerate(num_pages: int) -> None: # Type safe
                 page = None  # Retry on disambiguation error
         
         if page != None:
-            pdfContent = queue.Queue()
+            
+            pdfContent = queue.Queue() # Queue to store the content of the page
             content = page.content.strip()
             content = page.content.split('\n')
 
             temp = ""
             for i in range(len(content)):
-                if "==" in content[i]:
+                if "==" in content[i]: # A title will have "==" in it
                     pdfContent.put((temp, 2)) # Store the content in the queue
                     pdfContent.put((content[i], 1))
                 else:
