@@ -58,6 +58,30 @@ def pdfGenerate(num_pages: int) -> None: # Type safe
                     y_centered = page_height - 50  # Place near top of page, adjust 50 as needed
                     c.drawString(x_centered, y_centered, page.title)
                     
+                    c.setFont("Helvetica-Bold", 14)
+                    c.drawString(50, y_centered-50, "Summary")
+                    
+                    c.setFont("Helvetica", 12)
+                    
+                    ySumm = y_centered-100
+                    summLine = ""
+                    summ = page.summary.split(' ')
+                    for word in summ:
+                        if len(summLine) + len(word) + 1 > 80:
+                            c.drawString(50, ySumm, summLine)
+                            summLine = word
+                            ySumm -= 20
+                        else:
+                            if summLine:
+                                summLine += ' '
+                            summLine += word
+                            
+                    if summLine:  # Draw the last line
+                        c.drawString(50, ySumm, summLine)                           
+                        
+                            
+                        
+                    
                     c.showPage()
                     
                     while not pdfContent.empty():
