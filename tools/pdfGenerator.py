@@ -30,14 +30,13 @@ def pdfGenerate(num_pages: int) -> None: # Type safe
                     pdfContent = queue.Queue() # Queue to store the content of the page
                     content = page.content.strip()
                     content = page.content.split('\n')
-                    print(content)
+                    
 
                     temp = ""
                     for i in range(len(content)):
-                        if "==" in content[i]: # A title will have "==" in it
+                        if "==" in content[i] and "external links".lower() not in content[i].lower(): # A title will have "==" in it
                             if temp:
-                                print(temp)
-                                pdfContent.put((temp, 2)) # Store the content in the queue
+                                pdfContent.put((temp.replace("==", ""), 2))  # Store the content in the queue
                             pdfContent.put((content[i], 1))
                             temp = ""
                         else:
@@ -51,6 +50,15 @@ def pdfGenerate(num_pages: int) -> None: # Type safe
                     max_y_coordinate = 750  
                     min_y_coordinate = 50  
 
+                    c.setFont("Helvetica-Bold", 24)
+                    title_width = c.stringWidth(page.title, "Helvetica-Bold", 24)
+                    page_width = letter[0]
+                    page_height = letter[1]
+                    x_centered = (page_width - title_width) / 2
+                    y_centered = page_height - 50  # Place near top of page, adjust 50 as needed
+                    c.drawString(x_centered, y_centered, page.title)
+                    
+                    c.showPage()
                     
                     while not pdfContent.empty():
                         result = pdfContent.get()
@@ -75,6 +83,7 @@ def pdfGenerate(num_pages: int) -> None: # Type safe
                                 c.drawString(50, yCoordinate, current_line)
                                 current_line = word
                                 yCoordinate -= 20
+                                
                             else:
                                 if current_line:
                                     current_line += ' '
@@ -90,6 +99,23 @@ def pdfGenerate(num_pages: int) -> None: # Type safe
 
                         yCoordinate -= 20 
                 
+                    c.showPage()
+                    
+                    c.setFont("Helvetica-Bold", 24)
+                    c.drawString(50, 750 , "External Links")
+                    
+                    yRef = 720
+                    
+                    for link in page.links:
+                        if yRef < min_y_coordinate: # doubt links will be bigger than one page, but fills in stuff
+                            c.showPage()
+                            c.setFont("Helvetica-Bold", 14)
+                            yRef = max_y_coordinate
+                            
+                        c.setFont("Helvetica", 12)
+                        c.drawString(50, yRef, link)
+                        yRef -= 20
+                    
                     c.save()
                     logger.info(f"PDF created for {page.title}")
                 
@@ -106,76 +132,4 @@ def pdfGenerate(num_pages: int) -> None: # Type safe
                 logger.error(f"Error: {e}, trying another page")
                 page = None  # Retry on any other error
         
-        try: 
-            if page != None:
-                
-                pdfContent = queue.Queue() # Queue to store the content of the page
-                content = page.content.strip()
-                content = page.content.split('\n')
-                print(content)
-
-                temp = ""
-                for i in range(len(content)):
-                    if "==" in content[i]: # A title will have "==" in it
-                        if temp:
-                            print(temp)
-                            pdfContent.put((temp, 2)) # Store the content in the queue
-                        pdfContent.put((content[i], 1))
-                        temp = ""
-                    else:
-                        temp = temp + content[i]
-                        
-                        
-
-                yCoordinate = 750
-                c = canvas.Canvas(f"pdfs/{page.title}.pdf", pagesize=letter)
-
-                max_y_coordinate = 750  
-                min_y_coordinate = 50  
-
-                
-                while not pdfContent.empty():
-                    result = pdfContent.get()
-                    
-                    if result[1] == 1:
-                        c.setFont("Helvetica-Bold", 14) 
-                    elif result[1] == 2 and result[0] != '':
-                        c.setFont("Helvetica", 12)  
-                        result = (paraphrase(result[0]), result[1])
-                    
-                    text = result[0]
-                    words = text.split(' ')
-                    current_line = ''
-                    
-                    for word in words:
-                        if len(current_line) + len(word) + 1 > 80: # 80 characters per line, wrap text
-                            if yCoordinate < min_y_coordinate:
-                                c.showPage()
-                                c.setFont("Helvetica-Bold", 14) if result[1] == 1 else c.setFont("Helvetica", 12)
-                                yCoordinate = max_y_coordinate
-                            
-                            c.drawString(50, yCoordinate, current_line)
-                            current_line = word
-                            yCoordinate -= 20
-                        else:
-                            if current_line:
-                                current_line += ' '
-                            current_line += word
-                    
-                    if current_line:
-                        if yCoordinate < min_y_coordinate: # If the text goes beyond the page, create a new page
-                            c.showPage()
-                            c.setFont("Helvetica-Bold", 14) if result[1] == 1 else c.setFont("Helvetica", 12)
-                            yCoordinate = max_y_coordinate
-
-                        c.drawString(50, yCoordinate, current_line)
-
-                    yCoordinate -= 20 
-            
-                c.save()
-                logger.info(f"PDF created for {page.title}")
-            
-        except Exception as e:
-            print("ERROR: ", e)
-            print("Trying another page")
-            page = None
+        
